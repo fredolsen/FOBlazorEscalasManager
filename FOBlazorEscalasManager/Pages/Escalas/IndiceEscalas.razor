@@ -1,0 +1,187 @@
+﻿@page "/Escalas"
+
+@if (!renderizado)
+{
+    <div class="container">
+        <div align="left" style="margin-top: 20px;">
+            <hr />
+            <h3>Indice de escalas</h3>
+            @*<hr />*@
+        
+        <EditForm Model="@EscalaEliminar">
+            <div class="d-md-flex flex-wrap align-content-start border border-light font-weight-bold">
+                <div class="p-1">
+                    <label for="Escala">Número Escala:</label>
+                    <InputText type="number" class="form-control" @bind-Value="@EscalaBuscar"/>
+               </div>                
+                <div class="p-1">
+                    <label for="FechaDesde">Fecha Inicio:</label>
+                    <FODateTimePicker placeholder="Seleccione la fecha final" class="form-control" @bind-Value="@FechaIniBuscar" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ShowClear="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                    </FODateTimePicker>
+
+                </div>
+                <div class="p-1">
+                    <label for="FechaHasta">Fecha Final:</label>
+                    <FODateTimePicker placeholder="Seleccione la fecha final" class="form-control" @bind-Value="@FechaFinBuscar" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ShowClear="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                    </FODateTimePicker>
+                </div>
+                <div class="p-1 d-md-flex align-items-end">
+                    <button class="btn btn-outline-primary btn-block" @onclick="() => Filtro()" type="button"><i class="fas fa-search"></i> Filtrar</button>
+                </div>
+                <div class="p-1 d-md-flex ml-auto align-items-end">
+                    <button type="button" class="btn btn-primary btn-block" @onclick="() => AbreFormulario(string.Empty,0,0,0)">Nueva Escala</button>
+                </div>                               
+            </div>
+        </EditForm>
+            
+
+            <div style="margin-top:10px" class="row">
+                <div class="col-6">
+                    @*<div class="input-group">
+                        <input type="number" class="form-control" placeholder="Introduzca el número de escala" @oninput="@(async (e) => await BuscarElemento(e))" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>*@
+                </div>
+                <div class="col-6" align="right">
+                    @*<button type="button" class="btn btn-primary" @onclick="() => AbreFormulario(string.Empty,0,0,0)">
+                        Nueva Escala
+                    </button>*@
+                </div>
+            </div>
+
+            <table class="table table-sm table-responsive-lg table-bordered table-striped text-center" style="margin-top:20px">
+                <thead>
+                    <tr class="table-primary">
+                        <th></th>
+                        <th>Escala
+                        </th>
+                        <th>
+                            <FOTableDataGrid FilterName="Buque"
+                                             @ref="componenteBarco"
+                                             AllItems="@listaBarcos"
+                                             ValuePropertyName="Codigo"
+                                             TextPropertyName="Descripcion"
+                                             Title="Buque"
+                                             Accept=@((e) => AceptarBarco(e))>
+                            </FOTableDataGrid>
+                        </th>
+                        <th>
+                            <FOTableDataGrid FilterName="Puerto"
+                                             AllItems="@listaPuertos"
+                                             ValuePropertyName="Codigo"
+                                             TextPropertyName="Descripcion"
+                                             Title="Puerto"
+                                             Accept=@((e) => AceptarPuerto(e))>
+                            </FOTableDataGrid>
+                        </th>
+                        <th>
+                            <FOTableDataGrid FilterName="Origen"
+                                             AllItems="@listaPuertos"
+                                             ValuePropertyName="Codigo"
+                                             TextPropertyName="Descripcion"
+                                             Title="Origen"
+                                             Accept=@((e) => AceptarPuertoOrigen(e))>
+                            </FOTableDataGrid>
+                        </th>
+                        <th>
+                            <FOTableDataGrid FilterName="Destino"
+                                             AllItems="@listaPuertos"
+                                             ValuePropertyName="Codigo"
+                                             TextPropertyName="Descripcion"
+                                             Title="Destino"
+                                             Accept=@((e) => AceptarPuertoDestino(e))>
+                            </FOTableDataGrid>
+                        </th>
+                        <th>LLegada</th>
+                        <th>Salida</th>
+                        <th>
+                            <FOTableDataGrid FilterName="Estado"
+                                             AllItems="@listaEstados"
+                                             ValuePropertyName="EST_CCOEstado"
+                                             TextPropertyName="EST_Descripcion"
+                                             Title="Estado"
+                                             Accept=@((e) => AceptarEstado(e))>
+                            </FOTableDataGrid>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var escala in listaEscalas.Results)
+                    {
+                        var EstadoActual = listaEstados.FirstOrDefault(x => x.EST_CCOEstado == escala.Estado);
+                        //var BarcoActual = listaBarcos.FirstOrDefault(x => x.Codigo == escala.Buque);
+                        @if (EstadoActual != null)
+                        {
+
+                            <tr>
+                                <td>
+                                    <div class="row justify-content-lg-center">
+                                        <div class="ml-1 table-button-column">
+                                            <button type="button" class="btn btn-primary btn-xs rounded-circle" @onclick="() => Detalles(escala.Puerto, escala.NumeroEscala,escala.AnnoEscala)">
+                                                <i class="fas fa-info-circle fa-xs"></i>
+                                            </button>
+                                            @if (escala.Estado != "ASC")
+                                            {
+                                                <button type="button" class="btn btn-danger btn-xs rounded-circle" @onclick="@(async () => EliminarEscala(escala))">
+                                                    <i class="far fa-trash-alt fa-xs"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="btn btn-danger btn-xs rounded-circle" disabled>
+                                                    <i class="far fa-trash-alt fa-xs"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                @if (escala.NumeroEscala < 100000)
+                                {
+                                    <td>@escala.AnnoEscala-@escala.NumeroEscala</td>
+                                }
+                                else
+                                {
+                                    <td>**********</td>
+                                }
+
+                                <td class="text-left">@escala.Barco.Descripcion</td>
+                                <td>@escala.Puerto</td>
+                                <td>@escala.PuertoAnterior</td>
+                                <td>@escala.PuertoSiguiente</td>
+                                <td>@Convert.ToDateTime(escala.FechaAtraque).ToShortDateString() @Convert.ToDateTime(escala.HoraLLegada).ToString("HH:mm")</td>
+                                <td>@Convert.ToDateTime(escala.FechaDesatraque).ToShortDateString() @Convert.ToDateTime(escala.HoraDesatraque).ToString("HH:mm")</td>
+                                @if (escala.Estado == "ASC" || escala.Estado == "NAL" || escala.Estado == "ERM")
+                                {
+                                    <td class="text-danger"><IconoEstado Tamaño="" Estado=@escala.Estado></IconoEstado> @EstadoActual.EST_Descripcion</td>
+                                }
+                                else
+                                {
+                                    <td><IconoEstado Tamaño="" Estado=@escala.Estado></IconoEstado> @EstadoActual.EST_Descripcion</td>
+                                }
+
+
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+            <Paginator CurrentPage=@listaEscalas.CurrentPage RowCount=@listaEscalas.RowCount PageSize=@listaEscalas.PageSize MaxPages="5" PageChanged=@(async (pagina) => await CambiaPagina(pagina))></Paginator>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="loader-background col-12">
+        <div class="loader">
+        </div>
+    </div>
+
+}
+

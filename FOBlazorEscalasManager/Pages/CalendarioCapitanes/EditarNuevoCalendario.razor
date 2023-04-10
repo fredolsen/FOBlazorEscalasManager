@@ -1,0 +1,166 @@
+﻿@page "/Capitanes/Calendario/EditarNuevo/{Id:decimal}/{EditarNuevo:int}"
+
+
+<div class="container" align="center" style="margin-bottom: 12rem!important">
+    <div align="center" style="margin-top: 20px;">
+
+        <div class="card">
+            <div class="card-header alert-primary">
+                @if (EditarNuevo == 1)
+                {
+                    <h4>Editar Calendario de Capitán</h4>
+                }
+                else
+                {
+                    <h4>Nuevo Calendario de Capitán</h4>
+                }
+            </div>
+            <EditForm Context="formContext" Model="@calendario" OnValidSubmit="Guardar">
+                <DataAnnotationsValidator />
+                <div class="card-body">
+                    @*<blockquote class="blockquote mb-0">*@
+                        <div class="col-sm-6 col-xs-12 mt-5" align="left">
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Buque</strong></label>
+                                <InputSelect class="form-control" id="SelectBuque" placeholder="Introduzca el buque" @bind-Value="@calendario.Buque">
+                                    <option value="">Seleccione un buque</option>
+                                    @foreach (var barco in listaBarcos)
+                                    {
+                                        <option value="@barco.Codigo">@barco.Descripcion</option>
+
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => calendario.Buque)" />
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Capitán</strong></label>
+                                <InputSelect class="form-control" id="SelectCapitan" placeholder="Introduzca el capitán" @bind-Value="@calendario.Capitan">
+                                    <option value="">Seleccione un capitán</option>
+                                    @foreach (var capitan in listaCapitanes)
+                                    {
+                                        <option value="@capitan.Nombre">@capitan.Nombre</option>
+
+                                    }
+                                </InputSelect>                             
+                                <ValidationMessage For="@(() => calendario.Capitan)" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Fecha al mando desde</label>
+                                @*<FODateTimePIcker MaxDiferentDateNow="true" DateSave="@Convert.ToDateTime(@calendario.Al_Mando_Desde)" Visible="false" Accept=@((e) => SaveDate_Desde(e)) ModalName="FechaDesde" Tittle="Seleccione la fecha al mando desde"></FODateTimePIcker>*@
+                                <FODateTimePicker class="form-control" @bind-Value="@calendario.Al_Mando_Desde" Style="@FODateTimePickerStyles.DateTime" 
+                                                  CloseOnSelect="true"
+                                                  ViewMode="FODateTimePickerViewMode.ModalOnMobile"
+                                                  ShowClose="true">
+                                </FODateTimePicker>
+                                <ValidationMessage For="@(() => calendario.Al_Mando_Desde)" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Fecha al mando hasta</label>                                
+                            <FODateTimePicker class="form-control" @bind-Value="@calendario.Al_Mando_Hasta" Style="@FODateTimePickerStyles.DateTime" 
+                                              CloseOnSelect="true" 
+                                              ViewMode="FODateTimePickerViewMode.ModalOnMobile"
+                                              ShowClose="true">
+                            </FODateTimePicker>
+                                    <ValidationMessage For="@(() => calendario.Al_Mando_Hasta)" />
+                            </div>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="checkPracticaje"></label>
+                                <input type="checkbox" class="form-check-input" id="checkPracticaje" checked="@practicaje" @onchange="@(() => practicaje=!practicaje)" /><strong>Exención de Practicaje</strong>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5 mb-4">
+                            <div class="col-6" align="right">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                            <div class="col-6" align="left">
+                                <button type="button" class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    @*</blockquote>*@
+                </div>
+
+
+            </EditForm>
+
+            @*<div class="card-body">
+                <blockquote class="blockquote mb-0">
+                    <div class="col-sm-6 col-xs-12 mt-5" align="left">
+
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Barco</strong></label>
+                            <select class="form-control @(frmIncompleto ? "is-invalid" : null)" id="exampleFormControlSelect1" placeholder="Introduzca el barco" @bind="@calendario.Buque">
+                                <option value="">Seleccione un barco</option>
+                                @foreach (var barco in listaBarcos)
+                                {
+                                    <option value="@barco.Codigo">@barco.Descripcion</option>
+
+                                }
+                            </select>                           
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Capitán</strong></label>
+                            <select class="form-control @(frmIncompleto ? "is-invalid" : null)" id="exampleFormControlSelect1" placeholder="Introduzca el capitán" @bind="@calendario.Capitan">
+                                <option value="">Seleccione un capitán</option>
+                                @foreach (var capitan in listaCapitanes)
+                                {
+                                    <option value="@capitan.Nombre">@capitan.Nombre</option>
+
+                                }
+                            </select>                
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Fecha al mando desde</label>
+                            <FODateTimePIcker MaxDiferentDateNow="true" DateSave="@Convert.ToDateTime(@calendario.Al_Mando_Desde)" Visible="false" Accept=@((e) => SaveDate_Desde(e)) ModalName="FechaDesde" Tittle="Seleccione la fecha al mando desde"></FODateTimePIcker>
+                            <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca la fecha al mando desde" @bind-value="@calendario.Al_Mando_Desde" @onblur="() => frmIncompleto = false" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Fecha al mando hasta</label>
+                            <FODateTimePIcker MaxDiferentDateNow="true" DateSave="@Convert.ToDateTime(@calendario.Al_Mando_Hasta)" Visible="false" Accept=@((e) => SaveDate_Hasta(e)) ModalName="FechaHasta" Tittle="Seleccione la fecha al mando hasta"></FODateTimePIcker>
+                            <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca la fecha al mando hasta" @bind-value="@calendario.Al_Mando_Hasta" @onblur="() => frmIncompleto = false" />
+                        </div>
+
+                        <FODatePicker DateSave="DateTime.Now" Visible="@false" ModalName="Modal1"></FODatePicker>
+
+                        <div class="form-check">
+                            <label class="form-check-label" for="checkPracticaje"></label>
+                            <input type="checkbox" class="form-check-input" id="checkPracticaje" checked="@practicaje" @onchange="@(() => practicaje=!practicaje)" /><strong>Exención de Practicaje</strong>
+                        </div>
+                    </div>
+                   
+                    <div class="row mt-5 mb-4">
+                        <div class="col-6" align="right">
+                            @if (EditarNuevo == 1)
+                            {
+                                <button type="button" class="btn btn-primary" @onclick="@(async () => await EditarRegistro())">Guardar</button>
+
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" @onclick="@(async () => await AgregarRegistro())">Guardar</button>
+                            }
+
+                        </div>
+                        <div class="col-6" align="left">
+                            <button class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+
+                </blockquote>
+            </div>*@
+        </div>                 
+     </div>
+</div>

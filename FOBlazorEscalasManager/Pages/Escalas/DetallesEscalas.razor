@@ -1,0 +1,232 @@
+﻿@page "/Escalas/Detalles/{puerto}/{escala:int}/{año:int}"
+@*@if (!renderizado)
+    {*@
+
+
+@if (@EscalaActual.Barco != null)
+{
+       
+    <div class="container">
+        <div class="card">
+
+            <div class="card-header alert-primary font-weight-bold">
+                <div class="row h5">
+                    <div class="col-md-8">  Detalles de la escala: <span class="text-primary">@EscalaActual.AnnoEscala-@EscalaActual.NumeroEscala</span></div>
+                    <div class="col-md-4">
+                        <i class="fas fa-info-circle primary-color">  Estado:</i>
+                        @if (EscalaActual.Estado == "ASC" || EscalaActual.Estado == "NAL")
+                        {
+                            <span class="text-danger">@EstadoActual.EST_Descripcion</span>
+                        }
+                        else
+                        {
+                            <span class="text-primary">@EstadoActual.EST_Descripcion</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row card-subtitle mb-2 text-dark">
+                    <div class="col-md-4 text-dark">Buque: <span class="primary-color font-weight-bold">@BuqueActual.Descripcion</span></div>
+                    <div class="col-md-4 text-dark">ETA: <span class="primary-color font-weight-bold">@Convert.ToDateTime(EscalaActual.FechaAtraque).ToShortDateString() @Convert.ToDateTime(EscalaActual.HoraLLegada).ToString("HH:mm")</span></div>
+                    <div class="col-md-4 text-dark">ETD: <span class="primary-color font-weight-bold">@Convert.ToDateTime(EscalaActual.FechaDesatraque).ToShortDateString() @Convert.ToDateTime(EscalaActual.HoraDesatraque).ToString("HH:mm")</span></div>
+                </div>
+                <div class="row card-subtitle mb-2 text-dark">
+                    <div class="col-md-4 text-dark">Puerto: <span class="primary-color font-weight-bold">@PuertoOperacion.Descripcion</span></div>
+                    <div class="col-md-4 text-dark">Origen: <span class="primary-color font-weight-bold">@Origen.Descripcion</span></div>
+                    <div class="col-md-4 text-dark">Destino: <span class="primary-color font-weight-bold">@Destino.Descripcion</span></div>
+                </div>
+                <div class="row card-subtitle mb-2 text-dark">
+                    <div class="col-md-4 text-dark">Muelle: <span class="primary-color font-weight-bold">@EscalaActual.Muelle</span></div>
+                    <div class="col-md-4 text-dark">Capitán Entrada: <span class="primary-color font-weight-bold">@EscalaActual.CapitanEntrada</span></div>
+                    <div class="col-md-4 text-dark">Capitán Salida: <span class="primary-color font-weight-bold">@EscalaActual.Capitan</span></div>
+                </div>
+            </div>
+
+            <div class="card text-center">
+                <div class="card-header alert-primary">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold text-dark"> DUE - Declaración Única de Escala</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="row row justify-content-around p-3">
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Solicitud de escala <IconoEstado Estado=@EscalaActual.Estado></IconoEstado></h5>
+                                    <p class="card-text">Permite gestionar una escala.</p>
+                                    @if (EscalaActual.Estado != "ASC")
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="() => EditarEscala(EscalaActual.Puerto, EscalaActual.NumeroEscala, EscalaActual.AnnoEscala, 1)">Editar Escala</button>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card">
+
+                                @if (renderizado)
+                                {
+                                    <div class="loader-center col-12">
+                                        <div class="loader">
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="card-body">
+                                    <h5 class="card-title">Atraques y fondeos <IconoEstado Estado=@EscalaActual.Estado></IconoEstado></h5>
+                                    <p class="card-text">Permite gestionar un atraque.</p>
+                                    @if (EscalaActual.Estado != "ASC")
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="() => Atraques(EscalaActual.Puerto, EscalaActual.NumeroEscala, EscalaActual.AnnoEscala, EscalaActual.Buque, Convert.ToDecimal(EscalaActual.ID_Atraque))">Editar Atraque</button>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+
+                                    @if (EscalaActual.Estado != "ASC" && EscalaActual.Estado != "NAL")
+                                    {
+                                        <h5 class="card-title">Cancelación de escala <IconoEstado Estado="XXX"></IconoEstado></h5>
+                                        <p class="card-text">Permite cancelar una escala.</p>
+                                        <button type="button" class="btn btn-danger" @onclick="@(async () => EliminarEscala(EscalaActual))">Cancelar Escala</button>
+                                    }
+                                    else
+                                    {
+                                        <h5 class="card-title">Cancelación de escala <IconoEstado Estado=@EscalaActual.Estado></IconoEstado></h5>
+                                        <p class="card-text">Permite cancelar una escala.</p>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           <div class="card text-center">
+                <div class="card-header alert-primary">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold text-dark"> Descarga - Carga</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="container">                  
+                    <div class="row justify-content-center p-3">
+                        <div class="col-sm-5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Declaración Sumaria <IconoEstado Estado=@EscalaActual.DDSS></IconoEstado></h5>
+                                    <p class="card-text">Permite visualizar los datos de la descarga.</p>
+                                    <button type="button" class="btn btn-primary" @onclick="@(async () => DeclaracionSumaria())">Ver Declaración</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Manifiesto de Carga <IconoEstado Estado=@EscalaActual.MMCC></IconoEstado></h5>
+                                    <p class="card-text">Permite visualizar los datos de la carga.</p>
+                                    <button type="button" class="btn btn-primary" @onclick="@(async () => ManifiestoCarga())">Ver Manifiesto</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <br />
+
+        <div class="card">
+            <div class="card-header alert-primary font-weight-bold text-dark">
+                <a class="collapsed card-link font-weight-bold" data-toggle="collapse" href="#collapseThree">
+                    <i class="fas fa-comment-dots primary-color">  Mensajes de error</i>
+                </a>
+            </div>
+            <div id="collapseThree" class="collapse show">
+                <div class="card-body">
+                    @if (@EscalaActual.Error.Count > 0)
+                    {
+                        <table class="table table-sm table-responsive-lg table-bordered table-striped" style="margin-top:20px">
+                            <thead>
+                                <tr class="table-primary text-center">
+                                    <th>Fecha_Hora</th>
+                                    <th>Mensaje</th>
+                                    <th>Referencia</th>
+                                    <th>TipoLoc</th>
+                                    <th>Partida</th>
+                                    <th>Descripción</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in EscalaActual.Error.ToList())
+                                {
+
+                                    <tr>
+
+                                        <td>@item.FUM</td>
+                                        @switch (item.Actividad)
+                                        {
+                                            case "D":
+                                                <td>DECLARACIÓN</td>
+                                                break;
+                                            case "C":
+                                                <td>MANIFIESTO</td>
+                                                break;
+                                            default:
+                                                <td>ESCALA</td>
+                                                break;
+                                        }
+                                        <td>@item.ReferenciaFosa</td>
+                                        <td>@item.TipoLoc</td>
+                                        <td>@item.NumPartida</td>
+                                        <td>@item.Descripcion</td>
+
+                                    </tr>
+
+
+
+
+
+
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h6>No hay mensajes...</h6>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @*}
+        else
+        {
+            <div class="loader-background col-12">
+                <div class="loader">
+                </div>
+            </div>
+        }*@
+}
+

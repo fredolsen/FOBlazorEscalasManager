@@ -1,0 +1,188 @@
+﻿@page "/Declaraciones/{puerto}/{escala:int}/{año:int}/{actividad}"
+
+
+@if (!renderizado)
+{
+    //var listamatriculas = listamanifiestos.Results.Distinct().Where(p => p.Matricula != "");
+    var listamatriculas = lista.Where(p => p.Matricula != null).GroupBy(p => p.Matricula).Select(p => p.First());
+    //var listatipopartida = listamanifiestos.Results.GroupBy(p => p.TipoPartida).Select(p => p.First());
+    var listatipoequipo = listamanifiestos.Results.Where(p =>p.TipoObjeto!= null).GroupBy(p => p.TipoObjeto).Select(p => p.First());
+    //var listamercancias = listamanifiestos.Results.GroupBy(p => p.Mercancía).Select(p => p.First());
+    var listamercancias = lista.Where(p => p.Mercancía != null).GroupBy(p => p.Mercancía).Select(p => p.First());
+
+        <div class="container">
+            <div align="left" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header alert-primary font-weight-bold">
+                        <div class="row h5">
+                            <div class="col-md-4 text-primary">@TipoOperacion.ToUpper()</div>
+                            <div class="col-md-4">  Escala: <span class="text-primary">@Año-@Escala</span></div>
+                            <div class="col-md-4">
+                                <i class="fas fa-info-circle primary-color">  Estado:</i>
+                                @if (EstadoDeclaracion != null)
+                                {
+                                    @if (EstadoDeclaracion == "RMO" || EstadoDeclaracion == "ERM")
+                                    {
+                                        <span class="text-danger">@EstadoActual.EST_Descripcion</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-primary">@EstadoActual.EST_Descripcion</span>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                    @if (listamanifiestos.RowCount > 0)
+                    {
+                        <div class="card-body">
+                            <div class="row card-subtitle mb-2 text-dark">
+                                <div class="col-md-4 text-dark">Buque: <span class="primary-color font-weight-bold">@escala.Barco.Descripcion</span></div>
+                                <div class="col-md-4 text-dark">ETA: <span class="primary-color font-weight-bold">@Convert.ToDateTime(escala.FechaAtraque).ToShortDateString() @Convert.ToDateTime(escala.HoraLLegada).ToString("HH:mm")</span></div>
+                                <div class="col-md-4 text-dark">ETD: <span class="primary-color font-weight-bold">@Convert.ToDateTime(escala.FechaDesatraque).ToShortDateString() @Convert.ToDateTime(escala.HoraDesatraque).ToString("HH:mm")</span></div>
+                            </div>
+                            <div class="row card-subtitle mb-2 text-dark">
+                                <div class="col-md-4 text-dark">Puerto: <span class="primary-color font-weight-bold">@escala.PuertoOperacion.Descripcion</span></div>
+                                <div class="col-md-4 text-dark">Origen: <span class="primary-color font-weight-bold">@Origen</span></div>
+                                <div class="col-md-4 text-dark">Destino: <span class="primary-color font-weight-bold">@Destino</span></div>
+                            </div>
+                            <div class="row card-subtitle mb-2 text-dark">
+                                <div class="col-md-4 text-dark">Muelle: <span class="primary-color font-weight-bold">@escala.Muelle</span></div>
+                                <div class="col-md-4 text-dark">Capitán Entrada: <span class="primary-color font-weight-bold">@escala.CapitanEntrada</span></div>
+                                <div class="col-md-4 text-dark">Capitán Salida: <span class="primary-color font-weight-bold">@escala.Capitan</span></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                 
+                <table class="table table-sm table-responsive-lg table-bordered table-striped text-center" style="margin-top:20px">
+                    <thead>
+                        <tr class="table-primary">
+                            @*<th></th>*@
+                            <th>
+                                <FOTableDataGrid FilterName="Origen"
+                                                 AllItems="@listaPuertos"
+                                                 ValuePropertyName="Codigo"
+                                                 TextPropertyName="Descripcion"
+                                                 Title="Origen"
+                                                 Accept=@((e) => AceptarPuertoOrigen(e))>
+                                </FOTableDataGrid>
+                            </th>
+                            <th>
+                                <FOTableDataGrid FilterName="Destino"
+                                                 AllItems="@listaPuertos"
+                                                 ValuePropertyName="Codigo"
+                                                 TextPropertyName="Descripcion"
+                                                 Title="Destino"
+                                                 Accept=@((e) => AceptarPuertoDestino(e))>
+                                </FOTableDataGrid>
+                            </th>
+                            <th>BL</th>
+                            <th>Partida</th>
+                            <th>
+                                <FOTableDataGrid FilterName="Tipo"
+                                                 AllItems="@listatipopartida.ToList()"
+                                                 ValuePropertyName="Tipo"
+                                                 TextPropertyName="Descripcion"
+                                                 Title="Tipo Partida"
+                                                 Accept=@((e) => AceptarTipoPartida(e))>
+                                                 </FOTableDataGrid>
+                            </th>
+                            <th>
+                                 <FOTableDataGrid FilterName="Objeto"
+                                                 AllItems="@listatipovehiculo"
+                                                 ValuePropertyName="Objeto"
+                                                 TextPropertyName="Descripcion"
+                                                 Title="Tipo Equipamiento"
+                                                 Accept=@((e) => AceptarTipoVehiculo(e))>
+                                </FOTableDataGrid>
+                            </th>
+                            <th>                            
+                                <FOTableDataGrid FilterName="Matrícula"
+                                                 AllItems="@listamatriculas.ToList()"
+                                                 ValuePropertyName="Matricula"
+                                                 TextPropertyName="Matricula"
+                                                 Title="Matrícula"
+                                                 Accept=@((e) => AceptarMatricula(e))>
+                                </FOTableDataGrid>
+                            </th>
+                            <th>Longitud</th>
+                            <th>Tara</th>
+                            <th>Taric</th>
+                            <th>Bultos</th>
+                            <th>Carga</th>
+                            <th>
+                                <FOTableDataGrid FilterName="Mercancía"
+                                                 AllItems="@listamercancias.ToList()"
+                                                 ValuePropertyName="Mercancía"
+                                                 TextPropertyName="Mercancía"
+                                                 Title="Mercancía"
+                                                 Accept=@((e) => AceptarMercancia(e))>
+                                </FOTableDataGrid>
+                            </th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                         
+                        @foreach (var manifiesto in listamanifiestos.Results)
+                        {
+
+                            
+                        <tr>
+                            @*<td>
+            <div class="row justify-content-lg-center">
+                <div class="ml-1 table-button-column">
+                    <button type="button" class="btn btn-primary btn-sm rounded-circle" @onclick="() => EditarAtraque(atraque.ID,atraque.N_Atraque ,1)">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm rounded-circle" @onclick="@(async () => EliminarAtraque(atraque))">
+                        <i class="far fa-trash-alt"></i>
+                    </button>
+
+                </div>
+            </div>
+        </td>*@
+                            <td>@manifiesto.PuertoAnterior</td>
+                            <td>@manifiesto.PuertoSiguiente</td>
+
+                            @if (manifiesto.CNI_Embarque != null)
+                            {
+                                <td>@manifiesto.CNI_Embarque</td>
+                            }
+                            else
+                            {
+                                <td>@manifiesto.Conocimiento</td>
+                            }
+
+                            <td>@manifiesto.Partida</td>
+                            <td>@manifiesto.TipoPartida</td>
+                            <td>@manifiesto.TipoObjeto</td>
+                            <td>@manifiesto.Matricula</td>
+                            <td>@manifiesto.Largo</td>
+                            <td>@manifiesto.Tara</td>
+                            <td>@manifiesto.CodigoArancelario</td>
+                            <td>@manifiesto.Cantidad</td>
+                            <td>@manifiesto.Carga</td>
+                            <td align="left">@manifiesto.Mercancía</td>
+                        </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+                <Paginator CurrentPage=@listamanifiestos.CurrentPage RowCount=@listamanifiestos.RowCount PageSize=@listamanifiestos.PageSize MaxPages="5" PageChanged=@(async (pagina) => await CambiaPagina(pagina))></Paginator>
+            </div>
+        </div>
+     
+}
+else
+{
+    <div class="loader-background col-12">
+        <div class="loader">
+        </div>
+    </div>
+}

@@ -1,0 +1,485 @@
+﻿@page "/Escalas/Editar/{puerto}/{escala:int}/{año:int}/{EditarNuevo:int}"
+
+   
+    <div class="container" align="center">
+
+        <div class="card mt-6">
+            <div class="card-header alert-primary font-weight-bold">
+                @if (EditarNuevo == 1)
+                {
+                <div class="row h5">
+                    @if (escala.PuertoOperacion != null || escala.Barco != null)
+                    {
+                        <div class="col-md-3 text-left">Escala: <span class="text-primary">@Año-@Escala</span></div>
+                        <div class="col-md-5 text-left">Puerto: <span class="text-primary">@escala.PuertoOperacion.Descripcion</span></div>
+                        <div class="col-md-4 text-left">Buque: <span class="text-primary text-uppercase">@escala.Barco.Descripcion</span></div>
+                    }
+
+                </div>
+                }
+                else
+                {
+                    <div class="text-center"><h4>Nueva escala</h4></div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="col-sm-6 col-xs-12 col-md-7" align="left">
+
+                    <EditForm Context="formContext" Model="@escala" OnValidSubmit="Guardar">
+                        <DataAnnotationsValidator />
+
+                        @if (renderizado)
+                        {
+                            <div class="loader-center">
+                                <div class="loader">
+                                </div>
+                            </div>
+                        }
+
+                        @if (EditarNuevo == 0)
+                        {
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Buque</strong></label>
+                                <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el barco" @bind-Value="@escala.Buque" disabled="@IsDisabled">
+                                    <option value="">Seleccione el barco</option>
+                                    @foreach (var barco in listabarcos)
+                                        {
+                                        <option value="@barco.Codigo">@barco.Descripcion</option>
+
+                                        }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => escala.Buque)" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Puerto Operación</strong></label>
+                                <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto de operación" @bind-Value="@escala.Puerto" disabled="@IsDisabled" @oninput="@(async (e) => await PuertoSeleccionado(e))">
+                                    <option value="">Seleccione el puerto de operación</option>
+                                    @foreach (var puerto in listapuertos)
+                                        {
+                                        <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                        }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => escala.Puerto)" />
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="exampleFormControlSelect1"><strong>Puerto Anterior</strong></label>
+                                    <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto anterior" @bind-Value="@escala.PuertoAnterior">
+                                        <option value="">Seleccione el puerto de origen</option>
+                                        @foreach (var puerto in listapuertos)
+                                        {
+                                            <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => escala.PuertoAnterior)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="exampleFormControlSelect1"><strong>Puerto Siguiente</strong></label>
+                                    <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto siguiente" @bind-Value="@escala.PuertoSiguiente">
+                                        <option value="">Seleccione el puerto de destino</option>
+                                        @foreach (var puerto in listapuertos)
+                                        {
+                                            <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => escala.PuertoSiguiente)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Fecha LLegada</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.FechaAtraque" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.FechaAtraque)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Hora LLegada</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.HoraLLegada" Style="@FODateTimePickerStyles.Time" ShowClose="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.HoraLLegada)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        @*Hour="@(escala.HoraLLegada.HasValue ? escala.HoraLLegada.Value : DateTime.Now)"*@
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+
+                                    <label for="fechaSalida" class="font-weight-bold">Fecha Salida</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.FechaDesatraque" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.FechaDesatraque)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Hora Salida</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.HoraDesatraque" Style="@FODateTimePickerStyles.Time" ShowClose="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.HoraDesatraque)" />
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Fecha Salida Puerto Anterior</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.FechaSalidaPtoAnterior" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.FechaSalidaPtoAnterior)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Hora Salida Puerto Anterior</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.HoraSalidaPtoAnterior" Style="@FODateTimePickerStyles.Time" ShowClose="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.HoraSalidaPtoAnterior)" />
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Fecha LLegada Puerto Siguiente</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.FechaLLegadaPtoSiguiente" CloseOnSelect="true" Style="FODateTimePickerStyles.Date" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.FechaLLegadaPtoSiguiente)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Hora LLegada Puerto Siguiente</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@escala.HoraLLegadaPtoSiguiente" Style="@FODateTimePickerStyles.Time" ShowClose="true" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => escala.HoraLLegadaPtoSiguiente)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Muelle</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el muelle" @bind-Value="@escala.Muelle" disabled="@IsDisabled">
+                                <option value="">Seleccione el muelle de atraque</option>
+                                @foreach (var muelle in listamuelles)
+                                {
+                                    <option value="@muelle.MUELLE_DESC">@muelle.MUELLE_DESC</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => escala.Muelle)" />
+                        </div>
+
+                        <div class="form-check">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="form-check-label" for="checkIMDG_Carga"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkIMDG_Carga" checked="@IMDG_Carga" @onchange="@(() => IMDG_Carga = !IMDG_Carga)" /><strong>Carga Mercancía Peligrosa</strong>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-check-label" for="checkIMDG_Descarga"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkIMDG_Descarga" checked="@IMDG_Descarga" @onchange="@(() => IMDG_Descarga = !IMDG_Descarga)" /><strong>Descarga Mercancía Peligrosa</strong>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-check-label" for="checkIMDG_Transito"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkIMDG_Transito" checked="@IMDG_Transito" @onchange="@(() => IMDG_Transito = !IMDG_Transito)" /><strong>Lleva Mercancía Peligrosa en tránsito</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br />
+                        @if (EditarNuevo == 1)
+                        {
+                            <div class="form-group">
+                                <label class="font-weight-bold">Servicio Marítmo</label>
+                                <InputText class="form-control" type="number" placeholder="" @bind-Value="@escala.Cod_Servicio" />
+                            </div>
+                        }
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Capitán Entrada</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el capitán de entrada" @bind-Value="@escala.CapitanEntrada">
+                                <option value="">Seleccione el capitán de entrada</option>
+                                @foreach (var capitan in listacapitanes)
+                                {
+                                    <option value="@capitan.Nombre.ToUpper()">@capitan.Nombre.ToUpper()</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => escala.CapitanEntrada)" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Capitán Salida</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el capitán de salida" @bind-Value="@escala.Capitan">
+                                @*text-transform="uppercase"*@
+                                <option value="">Seleccione el capitán de salida</option>
+                                @foreach (var capitan in listacapitanes)
+                                {
+                                    <option value="@capitan.Nombre.ToUpper()">@capitan.Nombre.ToUpper()</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => escala.Capitan)" />
+                        </div>
+                        @if (EditarNuevo == 0)
+                        {
+                           
+                    <div class="form-check">
+                        <div class="row">
+                            <div class="col-sm-6">                  
+                                <label class="form-check-label" for="checkPracticaje"></label>
+                                <input type="checkbox" class="form-check-input" id="checkPracticaje" checked="@practicaje" @onchange="@(() => practicaje = !practicaje)" /><strong>Exención de Practicaje</strong>
+                            </div>
+                            <div class="col-sm-6">                              
+                                <label class="form-check-label" for="checkElectricidad"></label>
+                                <input type="checkbox" class="form-check-input" id="checkElectricidad" checked="@electricidad" @onchange="@(() => electricidad = !electricidad)" /><strong>Energía eléctrica</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                            }
+
+                            <div class="row mt-5 mb-4">
+                                <div class="col-6" align="right">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                                <div class="col-6" align="left">
+                                    <button type="button" class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+
+</EditForm>
+
+
+                </div>
+            </div>
+
+            @*<EditForm Context="formContext" Model="@escala" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+
+                    <div class="card-body">
+                        <div class="col-sm-6 col-xs-12 col-md-7 mt-5" align="left">
+
+                            @if (EditarNuevo == 1)
+                    {
+                        @if (escala.NumeroEscala < 100000)
+                        {
+
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Número Escala</label>
+                                        <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca la escala" @bind-value="@escala.NumeroEscala" @onblur="() => frmIncompleto = false" disabled="@IsDisabled" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Año Escala</label>
+                                        <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca el año" @bind-value="@escala.AnnoEscala" @onblur="() => frmIncompleto = false" disabled="@IsDisabled" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+                    }
+
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Buque</strong></label>
+                                <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el barco" @bind-Value="@escala.Buque" disabled="@IsDisabled">
+                                    <option value="">Seleccione el barco</option>
+                                    @foreach (var barco in listabarcos)
+                                    {
+                                        <option value="@barco.Codigo">@barco.Descripcion</option>
+
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => escala.Buque)" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Puerto Operación</strong></label>
+                                <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto de operación" @bind-Value="@escala.Puerto" disabled="@IsDisabled" @onchange="@(async (e) => await PuertoSeleccionado(e))">
+                                    <option value="">Seleccione el puerto de operación</option>
+                                    @foreach (var puerto in listapuertos)
+                                    {
+                                        <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => escala.Puerto)" />
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label for="exampleFormControlSelect1"><strong>Puerto Anterior</strong></label>
+                                        <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto anterior" @bind-Value="@escala.PuertoAnterior">
+                                            <option value="">Seleccione el puerto de origen</option>
+                                            @foreach (var puerto in listapuertos)
+                                            {
+                                                <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => escala.PuertoAnterior)" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="exampleFormControlSelect1"><strong>Puerto Siguiente</strong></label>
+                                        <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el puerto siguiente" @bind-Value="@escala.PuertoSiguiente">
+                                            <option value="">Seleccione el puerto de destino</option>
+                                            @foreach (var puerto in listapuertos)
+                                            {
+                                                <option value="@puerto.Codigo">@puerto.Descripcion</option>
+
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => escala.PuertoSiguiente)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Fecha LLegada</label>
+                                        <FODatePicker Visible="false"
+                                                      MaxDiferentDateNow="true"
+                                                      DateSave="@Convert.ToDateTime(escala.FechaAtraque).Date"
+                                                      Accept=@((e) => AceptarFechaLLegada(e))
+                                                      ModalName="FechaSeleccionadaLLegada"
+                                                      Tittle="Seleccione la fecha de llegada">
+                                        </FODatePicker>
+                                        <ValidationMessage For="@(() => escala.FechaAtraque)" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Hora LLegada</label>
+                                        <FOTimePicker Visible="false"
+                                                      Hour=" new DateTime(1899, 12, 30, Convert.ToDateTime(escala.HoraLLegada).Hour, Convert.ToDateTime(escala.HoraLLegada).Minute, 0)"
+                                                      Accept=@((e) => AceptarHoraLLegada(e))
+                                                      ModalName="HoraSeleccionadaLLegada"
+                                                      Tittle="Seleccione la hora de llegada">
+                                        </FOTimePicker>
+                                        <ValidationMessage For="@(() => escala.HoraLLegada)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            Hour="@(escala.HoraLLegada.HasValue ? escala.HoraLLegada.Value : DateTime.Now)"
+
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Fecha Salida</label>
+                                        <FODatePicker Visible="false"
+                                                      MaxDiferentDateNow="true"
+                                                      DateSave="@Convert.ToDateTime(escala.FechaDesatraque).Date"
+                                                      Accept=@((e) => AceptarFechaSalida(e))
+                                                      ModalName="FechaSeleccionadaSalida"
+                                                      Tittle="Seleccione la fecha de salida">
+                                        </FODatePicker>
+                                        <ValidationMessage For="@(() => escala.FechaDesatraque)" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="font-weight-bold">Hora Salida</label>
+                                        <FOTimePicker Visible="false"
+                                                      Hour="new DateTime(1899, 12, 30, Convert.ToDateTime(escala.HoraDesatraque).Hour, Convert.ToDateTime(escala.HoraDesatraque).Minute, 0)"
+                                                      Accept=@((e) => AceptarHoraSalida(e))
+                                                      ModalName="HoraSeleccionadaSalida"
+                                                      Tittle="Seleccione la hora de salida">
+                                        </FOTimePicker>
+                                        <ValidationMessage For="@(() => escala.HoraDesatraque)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1"><strong>Muelle</strong></label>
+                                <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el muelle" @bind-Value="@escala.Muelle" disabled="@IsDisabled">
+                                    <option value="">Seleccione el muelle de atraque</option>
+                                    @foreach (var muelle in listamuelles)
+                                    {
+                                        <option value="@muelle.MUELLE_DESC">@muelle.MUELLE_DESC</option>
+
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => escala.Muelle)" />
+                            </div>
+
+                            <div class="form-check">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label class="form-check-label" for="checkIMDG_Carga"></label>
+                                        <input type="checkbox" class="form-check-input" id="checkIMDG_Carga" checked="@IMDG_Carga" @onchange="@(() => IMDG_Carga = !IMDG_Carga)" /><strong>Carga Mercancía Peligrosa</strong>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-check-label" for="checkIMDG_Descarga"></label>
+                                        <input type="checkbox" class="form-check-input" id="checkIMDG_Descarga" checked="@IMDG_Descarga" @onchange="@(() => IMDG_Descarga = !IMDG_Descarga)" /><strong>Descarga Mercancía Peligrosa</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br />
+                            @if (EditarNuevo == 1)
+                            {
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Servicio Marítmo</label>
+                                    <input class="form-control" type="text" placeholder="" @bind-value="@escala.Cod_Servicio" @onblur="() => frmIncompleto = false" />
+                                </div>
+                            }
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Capitán Entrada</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el capitán de entrada" @bind-Value="@escala.CapitanEntrada" text-transform="uppercase">
+                                <option value="">Seleccione el capitán de entrada</option>
+                                @foreach (var capitan in listacapitanes)
+                                {
+                                    <option value="@capitan.Nombre.ToUpper()">@capitan.Nombre.ToUpper()</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => escala.CapitanEntrada)" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Capitán Salida</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el capitán de salida" @bind-Value="@escala.Capitan" text-transform="uppercase" >
+                                <option value="">Seleccione el capitán de salida</option>
+                                @foreach (var capitan in listacapitanes)
+                                {
+                                    <option value="@capitan.Nombre.ToUpper()">@capitan.Nombre.ToUpper()</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => escala.Capitan)" />
+                        </div>
+                            <div class="form-check">
+                                <label class="form-check-label" for="checkPracticaje"></label>
+                                <input type="checkbox" class="form-check-input" id="checkPracticaje" checked="@practicaje" @onchange="@(() => practicaje = !practicaje)" /><strong>Exención de Practicaje</strong>
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-5 mb-4">
+                            <div class="col-6" align="right">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                            <div class="col-6" align="left">
+                                <button class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>*@
+
+        </div>
+    </div>
+

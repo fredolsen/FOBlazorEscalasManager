@@ -1,0 +1,146 @@
+﻿@page "/Atraques/{id:decimal}/{escala:int}/{año:int}/{puerto}/{barco}"
+@page "/Atraques/{id:decimal}"
+
+
+@if (!renderizado)
+{
+
+    <div class="container">
+
+        <div align="left" style="margin-top: 20px;">
+            <hr />
+            <h4>Indice de Atraques</h4>
+            <hr />
+            <div class="card">
+                <div class="card-header alert-primary font-weight-bold">
+                    <div class="row h5">
+                        <div class="col-md-3">Escala: <span class="text-primary">@Año-@Escala</span></div>
+                        <div class="col-md-5">Puerto: <span class="text-primary">@escala.PuertoOperacion.Descripcion</span></div>
+                        <div class="col-md-4">Buque: <span class="text-primary text-uppercase">@escala.Barco.Descripcion</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:30px" class="row">
+                <div class="col-6">
+                    <div class="input-group">
+                        <input type="number" class="form-control" placeholder="Introduzca el número de atraque" @oninput="@(async (e) => await BuscarElemento(e))" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6" align="right">
+                    <button type="button" class="btn btn-primary" @onclick="() => AbreFormulario()">
+                        Nuevo Atraque
+                    </button>
+                </div>
+            </div>
+
+            <table class="table table-sm table-responsive-lg table-bordered table-striped text-center" style="margin-top:20px">
+                <thead>
+                    <tr class="table-primary">
+                        <th></th>
+                        <th>Nº</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Final</th>
+                        <th>Muelle</th>
+                        <th>Norays</th>
+                        <th>Tipo</th>
+                        <th>Operación</th>
+                        <th>Descarga</th>
+                        <th>Carga</th>
+                        <th>Exención Practicaje</th>
+                        <th>Electricidad</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var atraque in listaAtraques.Results)
+                    {
+
+                    <tr>
+                        <td>
+                            <div class="row justify-content-lg-center">
+                                <div class="ml-1 table-button-column">
+                                    <button type="button" class="btn btn-primary btn-xs rounded-circle" @onclick="() => EditarAtraque(atraque.ID,atraque.N_Atraque ,1)">
+                                        <i class="fas fa-info-circle fa-xs"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs rounded-circle" @onclick="@(async () => EliminarAtraque(atraque))">
+                                        <i class="far fa-trash-alt fa-xs"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+                        </td>
+                        <td>@atraque.N_Atraque</td>
+                        <td>@atraque.Ocupacíon</td>
+                        <td>@atraque.Desocupacíon</td>
+                        <td>@atraque.Muelle_ID</td>
+                        <td>@atraque.Norays</td>
+                        <td>@atraque.TipoAtraque</td>
+                        <td>@atraque.TipoActividad</td>
+                        <td class="text-center">
+                            @if (atraque.OperacionD == 1)
+                            {
+                                <i class="fas fa-check-circle text-success"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times-circle text-danger"></i>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (atraque.OperacionE == 1)
+                            {
+                                <i class="fas fa-check-circle text-success"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times-circle text-danger"></i>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (atraque.Praticaje == 1)
+                            {
+                                <i class="fas fa-check-circle text-success"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times-circle text-danger"></i>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (atraque.Electricidad == 1)
+                            {
+                                <i class="fas fa-check-circle text-success"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times-circle text-danger"></i>
+                            }
+                        </td>
+                    </tr>
+
+                    }
+
+
+                </tbody>
+            </table>
+            <Paginator CurrentPage=@listaAtraques.CurrentPage RowCount=@listaAtraques.RowCount PageSize=@listaAtraques.PageSize MaxPages="5" PageChanged=@(async (pagina) => await CambiaPagina(pagina))></Paginator>
+
+        </div>
+
+    </div>
+
+
+}
+else
+{
+    <div class="loader-background col-12">
+        <div class="loader">
+        </div>
+    </div>
+}
+

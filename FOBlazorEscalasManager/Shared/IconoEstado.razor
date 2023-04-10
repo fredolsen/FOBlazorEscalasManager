@@ -1,0 +1,26 @@
+﻿
+@switch (Estado)
+{
+
+    case "ADM":
+    case "AMO":
+    case "AAT":
+        <i class="fas fa-check-circle fa-@Tamaño text-success"></i>
+        break;
+
+    case "ASC":
+    case "NAL":
+    case "RMO":
+    case "ERM":
+        <i class="fas fa-times-circle fa-@Tamaño text-danger"></i>
+        break;
+    case null:
+    case "XXX":
+        <i class="fas fa-edit fa-@Tamaño text-light"></i>
+        break;
+    default:
+        <i class="fas fa-exclamation-circle fa-@Tamaño text-warning"></i>
+        break;
+
+}
+

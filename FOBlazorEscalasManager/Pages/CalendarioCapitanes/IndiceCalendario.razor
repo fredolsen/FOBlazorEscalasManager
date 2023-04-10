@@ -1,0 +1,105 @@
+﻿@page "/Capitanes/Calendario"
+@page "/Capitanes/Calendario/{buscar}"
+
+
+@if (!renderizado)
+{
+    <div class="container">
+
+                      
+        <div align="left" style="margin-top: 20px;">
+            <hr />
+            <h3>Calendario de Capitanes</h3>
+            <hr />
+        </div>
+
+        <div style="margin-top:30px" class="row">
+            <div class="col-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@buscar" placeholder="Introduzca el código del barco o el nombre del capitán" @oninput="@(async (e) => await BuscarElemento(e))" />  
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="button"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6" align="right">
+                <button type="button" class="btn btn-primary" @onclick="() => AbreFormulario(0,0)">
+                    Añadir Nuevo
+                </button>
+            </div>
+        </div>
+
+                 
+        <table class="table table-sm table-responsive-lg table-bordered table-striped" style="margin-top:20px">
+        
+            <thead>
+                <tr class="table-primary text-center">
+                    <th></th>
+                    <th>Buque</th>
+                    <th>Capitán</th>
+                    <th>Al Mando Desde</th>
+                    <th>Al Mando Hasta</th>
+                    <th>Exención Practicaje</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var calendario in listaCalendarioCapitan.Results)
+                {
+                    var buqueActual = listaBarco.FirstOrDefault(x => x.Codigo == calendario.Buque);
+                    @if (buqueActual != null)
+                    {
+                        <tr>
+                            <td>
+                                <div class="row justify-content-lg-center">
+                                    <div class="ml-1 table-button-column">
+                                        <button type="button" class="btn btn-primary btn-xs rounded-circle" @onclick="@(async() => AbreFormulario(calendario.Id,1))">
+                                            <i class="fas fa-pencil-alt fa-xs"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-xs rounded-circle" @onclick="@(async() => EliminarCalendario(calendario))">
+                                            <i class="far fa-trash-alt fa-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@buqueActual.Descripcion</td>
+                            <td>@calendario.Capitan</td>
+                            <td class="text-center">@calendario.Al_Mando_Desde</td>
+                            <td class="text-center">@calendario.Al_Mando_Hasta</td>
+                            <td class="text-center">
+                                @if (calendario.Practicaje == 0)
+                                {
+                                    <i class="fas fa-check-circle text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-times-circle text-danger"></i>
+                                }
+
+                            </td>
+                        </tr>
+                    }
+
+                }
+
+            </tbody>
+        </table>
+
+        <Paginator CurrentPage=@listaCalendarioCapitan.CurrentPage RowCount=@listaCalendarioCapitan.RowCount PageSize=@listaCalendarioCapitan.PageSize MaxPages="5" PageChanged=@(async (pagina) => await CambiaPagina(pagina))></Paginator>
+
+              
+    </div>
+
+}
+else
+{
+    <div class="loader-background col-12">
+        <div class="loader">
+        </div>
+    </div>
+}
+
+
+
+

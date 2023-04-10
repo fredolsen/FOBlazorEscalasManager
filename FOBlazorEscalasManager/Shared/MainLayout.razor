@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+
+@using FOBlazorEscalasManager.Services;
+@using Blazored.Toast.Configuration
+
+<BlazoredModal />
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="5"
+                SuccessClass="success-toast-override"
+                SuccessIconClass="fa fa-thumbs-up"
+                ErrorIconClass="fas fa-times" />
+
+
+@if (loading)
+{
+    <div class="loader-background centro">
+        <div class="loader"></div>
+    </div>
+}
+else
+{
+    @if (Estado.Token != null)
+    {
+        <NavMenu ToggleMenu="@ToggleNavMenu" MenuItems="NavMenuItems" Titulo="@APP_NAME"
+                 MenuSelected="NavMenuSelected" Username="@Estado.Token?.Usuario?.Username"></NavMenu>
+
+        <div class="wrapper">
+            <div id="sidebar" class="@ActiveClass">
+                <SideBar ToggleMenu="@ToggleNavMenuSideBar" Username="@Estado.Token.Usuario.Username" MenuItems="@MenuItems"></SideBar>
+            </div>
+
+            <div id="content" class="@ActiveClass">
+                @Body
+            </div>
+
+            <div class="overlay @ActiveClass" @onclick="@ToggleNavMenu"></div>
+        </div>
+    }
+    else
+    {
+        <LoginForm LogIn="@(async (loginModel) => await Login(loginModel))" AppName="@APP_NAME" AllowPIN="false"></LoginForm>
+    }
+}

@@ -1,0 +1,14 @@
+﻿<div class="container">
+    <h5>
+        ¿Está seguro que desea eliminar este registro?
+    </h5>
+</div>
+
+<div class="row mt-5">
+    <div class="col-6" align="right">
+        <button class="btn btn-primary" @onclick="(async () => await Guardar(true))">Aceptar</button>
+    </div>
+    <div class="col-6" align="left">
+        <button class="btn btn-danger" @onclick="(async () => await Guardar(false))">Cancelar</button>
+    </div>
+</div>

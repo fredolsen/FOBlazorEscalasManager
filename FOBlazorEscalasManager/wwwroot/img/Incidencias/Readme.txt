@@ -1,0 +1,1 @@
+﻿Carpeta que contiene las imágenes de las Incidencias.

@@ -1,0 +1,169 @@
+﻿@page "/Atraques/Editar/{Id:decimal}/{N_Atraque:int}/{EditarNuevo:int}"
+
+
+    <div class="container" align="center"  style="margin-bottom: 10rem!important;">
+      
+        <div class="card mt-4">
+            <div class="card-header alert-primary font-weight-bold">
+                @if (EditarNuevo == 1)
+                {
+                    <div class="row h5">
+                        @if (escala.PuertoOperacion != null || escala.Barco != null)
+                        {
+                            <div class="col-md-3 text-left">Escala: <span class="text-primary">@escala.AnnoEscala-@escala.NumeroEscala</span></div>
+                            <div class="col-md-5 text-left">Puerto: <span class="text-primary">@escala.PuertoOperacion.Descripcion</span></div>
+                            <div class="col-md-4 text-left">Buque: <span class="text-primary text-uppercase">@escala.Barco.Descripcion</span></div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center"><h4>Nuevo Atraque</h4></div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="col-sm-6 col-xs-12 col-md-7" align="left">
+
+                    <EditForm Context="formContext" Model="@atraque" OnValidSubmit="Guardar">
+                        <DataAnnotationsValidator />
+
+                        @if (renderizado)
+                        {
+                            <div class="loader-center">
+                                <div class="loader">
+                                </div>
+                            </div>
+                        }
+
+                        @if (EditarNuevo == 1)
+                        {
+                            <div class="form-group">
+                                <label class="font-weight-bold">Nº de Atraque</label>
+                                <InputNumber class="form-control" type="number" placeholder="" @bind-Value="@atraque.N_Atraque" disabled />
+                            </div>
+                        }
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Muelle</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el muelle" @bind-Value="@atraque.Muelle_ID">
+                                <option value="">Seleccione el muelle</option>
+                                @foreach (var muelle in listamuelles)
+                                {
+                                    <option value="@muelle.MUELLE_DESC">@muelle.MUELLE_DESC</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => atraque.Muelle_ID)" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Tipo Atraque</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca el tipo de atraque" @bind-Value="@atraque.TipoAtraque">
+                                <option value="">Seleccione el tipo de atraque</option>
+                                @foreach (var tipoatraque in listatiposatraques)
+                                {
+                                    <option value="@tipoatraque.Codigo">@tipoatraque.Descripcion</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => atraque.TipoAtraque)" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1"><strong>Tipo Operación</strong></label>
+                            <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca la operación" @bind-Value="@atraque.TipoActividad" @oninput="@(async (e) => await Operacion(e))">
+                                <option value="">Seleccione el tipo de operación</option>
+                                @foreach (var operacion in listaoperaciones)
+                                {
+                                    <option value="@operacion.Codigo">@operacion.Descripcion</option>
+
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => atraque.TipoActividad)" />
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Entrada</label>
+                                    @if (atraque.N_Atraque == 1)
+                                    {
+                                        <input type="datetime" class="form-control" placeholder="" @bind-value="@atraque.Ocupacíon" disabled />
+                                    }
+                                    else
+                                    {
+                                         <FODateTimePicker class="form-control" @bind-Value="@atraque.Ocupacíon" CloseOnSelect="true" Style="FODateTimePickerStyles.DateTime" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                        </FODateTimePicker>
+                                    }
+                                   
+                                    <ValidationMessage For="@(() => atraque.Ocupacíon)" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="font-weight-bold">Salida</label>
+                                    <FODateTimePicker class="form-control" @bind-Value="@atraque.Desocupacíon" CloseOnSelect="true" Style="@FODateTimePickerStyles.DateTime" ViewMode="FODateTimePickerViewMode.ModalOnMobile">
+                                    </FODateTimePicker>
+                                    <ValidationMessage For="@(() => atraque.Desocupacíon)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="font-weight-bold">Norays</label>
+                                    <InputText class="form-control" type="text" placeholder="Introduzca los norays" @bind-Value="@atraque.Norays" />
+                                    <ValidationMessage For="@(() => atraque.Norays)" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="font-weight-bold">Calado Entrada</label>
+                                    <InputNumber class="form-control" type="number" placeholder="Introduzca calado de entrada" @bind-Value="@atraque.Calado_LLegada" />
+                                    <ValidationMessage For="@(() => atraque.Calado_LLegada)" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="font-weight-bold">Calado Salida</label>
+                                    <InputNumber class="form-control" type="number" placeholder="Introduzca calado de salida" @bind-Value="@atraque.Calado_Salida" />
+                                    <ValidationMessage For="@(() => atraque.Calado_Salida)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        @*@if (EditarNuevo == 0) { practicaje = true; }*@
+                        <div class="form-check">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <label class="form-check-label" for="checkPracticaje"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkPracticaje" checked="@practicaje" @onchange="@(() => practicaje = !practicaje)" /><strong>Exención de Practicaje</strong>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-check-label" for="checkDesembarque"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkDesembarque" checked="@desembarque" @onchange="@(() => desembarque = !desembarque)" /><strong>Operación de Desembarque</strong>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-check-label" for="checkEmbarque"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkEmbarque" checked="@embarque" @onchange="@(() => embarque = !embarque)" /><strong>Operación de Embarque</strong>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-check-label" for="checkEmbarque"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkEmbarque" checked="@electricidad" @onchange="@(() => electricidad = !electricidad)" /><strong>Energía Eléctrica</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row mt-5 mb-4">
+                            <div class="col-6" align="right">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                            <div class="col-6" align="left">
+                                <button type="button" class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    </EditForm>
+
+                </div>
+            </div>
+        </div>
+    </div>
+

@@ -1,0 +1,134 @@
+﻿@page "/Capitanes/EditarNuevo/{Id:decimal}/{EditarNuevo:int}"
+
+
+    <div class="container">
+        <div align="center" style="margin-top: 20px;">
+
+            <div class="card">
+                <div class="card-header alert-primary">
+                   
+                    @if (EditarNuevo == 1)
+                    {
+                        <h4>Editar Capitán</h4>
+                    }
+                    else
+                    {
+                        <h4>Nuevo Capitán</h4>
+                    }
+                </div>
+
+                <EditForm Context="formContext" Model="@capitan" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <div class="card-body">
+                        @*<blockquote class="blockquote mb-0">*@
+
+                            <div class="col-sm-6 col-xs-12 col-md-7" align="left">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Nombre y apellidos</label>
+                                    <InputText class="form-control" placeholder="Introduzca el nombre y apellidos del capitán" @bind-Value="@capitan.Nombre" />
+                                    <ValidationMessage For="@(() => capitan.Nombre)" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1"><strong>País</strong></label>
+                                    <InputSelect class="form-control" id="exampleFormControlSelect1" placeholder="Introduzca la nacionalidad" @bind-Value="@capitan.Nacionalidad">
+                                        <option value="">Seleccione el país</option>
+                                        @foreach (var pais in listapaises)
+                                {
+                                        <option value="@pais.Codigo">@pais.Descripcion</option>
+
+                                }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => capitan.Nacionalidad)" />
+                                </div>
+
+                                @*<div class="form-group">
+                                    <label class="font-weight-bold">Nacionalidad</label>
+                                    <InputText class="form-control" placeholder="Introduzca los dos dígitos del código del país" @bind-Value="@capitan.Nacionalidad" />
+                                    <ValidationMessage For="@(() => capitan.Nacionalidad)" />
+                                </div>*@
+
+                                @if (EditarNuevo != 0)
+                                {
+                                <div class="form-check">
+                                    <label class="form-check-label" for="checkBaja"></label>
+                                    <input type="checkbox" class="form-check-input" id="checkBaja" checked="@baja" @onchange="@(() => baja=!baja)" /><strong>Baja</strong>
+                                </div>
+                                }
+
+                            </div>
+
+                            <div class="row mt-5 mb-4">
+                                <div class="col-6" align="right">
+                                    <button type="submit" class="btn btn-primary" >Guardar</button>
+                                </div>
+                                <div class="col-6" align="left">
+                                    <button type="button" class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        @*</blockquote>*@
+                    </div>
+
+                </EditForm>
+
+                @*<div class="card-body">
+                    <blockquote class="blockquote mb-0">
+
+                        <div class="col-sm-6 col-xs-12 mt-5" align="left">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Nombre y apellidos</label>
+                                <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca el nombre y apellidos del capitán" @bind-value="@capitan.Nombre" @onblur="() => frmIncompleto = false" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Nacionalidad</label>
+                                <input class="form-control @(frmIncompleto ? "is-invalid" : null)" type="text" placeholder="Introduzca los dos dígitos del código del país" @bind-value="@capitan.Nacionalidad" @onblur="() => frmIncompleto = false" />
+                            </div>
+
+                            @if (EditarNuevo != 0)
+                            {
+                                <div class="form-group form-check">
+                                    @if (capitan.Baja == 0)
+                                    {
+                                        <input type="checkbox" class="form-check-input" id="checkEstado" @bind-value="@capitan.Baja" @onclick="() => AltaCapitan = 1" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" class="form-check-input" id="checkEstado" @bind-value="@capitan.Baja" checked @onclick="() => AltaCapitan = 0">
+                                    }
+                                    <label for="checkEstado">Baja</label>
+                                </div>
+                            }
+
+
+                        </div>
+
+                        <div class="row mt-5 mb-4">
+                            <div class="col-6" align="right">
+                                @if (EditarNuevo == 1)
+                                {
+                                    <button type="button" class="btn btn-primary" @onclick="@(async () => await EditarRegistro())">Guardar</button>
+
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-primary" @onclick="@(async () => await AgregarRegistro())">Guardar</button>
+                                }
+
+                            </div>
+                            <div class="col-6" align="left">
+                                <button class="btn btn-danger" @onclick="@(async () => AccederPaginaInicial())">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </blockquote>
+                </div>*@
+            </div>                     
+
+        </div>
+    </div>
+
+
